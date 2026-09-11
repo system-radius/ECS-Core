@@ -1,0 +1,66 @@
+# Build outputs
+
+bin/
+obj/
+
+# Visual Studio
+
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+
+.idea/
+*.sln.iml
+
+# VS Code
+
+.vscode/
+
+# NuGet
+
+packages/
+*.nupkg
+*.snupkg
+
+# Test results
+
+TestResults/
+
+# Coverage reports
+
+coverage/
+*.coverage
+*.coveragexml
+
+# Logs
+
+*.log
+
+# OS files
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Generated files
+
+Generated/
+*.generated.cs
+
+# Publish outputs
+
+publish/
+
+# Temporary files
+
+tmp/
+temp/
+
+# ReSharper
+
+_ReSharper*/
+*.DotSettings.user
