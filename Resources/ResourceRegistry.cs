@@ -10,7 +10,7 @@ namespace ECS.Core.Resources
         public void Add<T>(T resource)
         {
             Type type = typeof(T);
-            if (resources.ContainsKey(type)) throw new InvalidOperationException($"Reource {type.Name} alread exists");
+            if (resources.ContainsKey(type)) throw new InvalidOperationException($"Reource {type.Name} already exists");
             resources.Add(type, resource);
         }
 
@@ -33,7 +33,7 @@ namespace ECS.Core.Resources
         public T Get<T>()
         {
             if (!resources.TryGetValue(typeof(T), out var resource)) throw new InvalidOperationException($"Key {typeof(T).Name} does not exist");
-            return (T)resources[typeof(T)];
+            return (T)resource;
         }
 
         public bool TryGet<T>(out T resource)

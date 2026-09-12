@@ -63,8 +63,10 @@ namespace ECS.Core.Systems
             }
             catch (Exception e)
             {
-                // Empty for now.
-            } finally { isUpdating = false; }
+                // Add logging later
+                throw e;
+            }
+            finally { isUpdating = false; }
         }
 
         public void CreateGroup(SystemGroupId id)

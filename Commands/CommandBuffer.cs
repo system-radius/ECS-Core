@@ -43,6 +43,8 @@ namespace ECS.Core.Commands
             PlaybackQueue(components, setQueues);
             PlaybackQueue(components, removeQueues);
 
+            // During destruction of an entity, remove the entity reference from the components first
+            // then proceed to the deletion of the entity.
             for (int i = 0; i < destroyQueue.Count; i++)
             {
                 var entity = destroyQueue[i];
