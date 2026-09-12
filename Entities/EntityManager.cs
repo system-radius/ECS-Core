@@ -4,7 +4,7 @@ namespace ECS.Core.Entities
 {
     public sealed class EntityManager
     {
-        private int nextId = 1;
+        private int nextId = 0;
         private readonly Stack<int> freeIndices = new();
         private readonly List<int> versions = new();
         private readonly List<bool> alive = new();
@@ -29,7 +29,10 @@ namespace ECS.Core.Entities
         }
 
         public bool Exists(Entity entity) {
-            return alive[entity.Index];
+            // First, bind the index such that it is within range of expected values.
+            // Then check if the entity is alive and the version is correct.
+            return entity.Index >= 0 && entity.Index < alive.Count
+                && alive[entity.Index] && versions[entity.Index] == entity.Version;
         }
 
         public bool Destroy(Entity entity)
