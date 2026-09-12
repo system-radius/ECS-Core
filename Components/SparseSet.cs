@@ -6,7 +6,7 @@ namespace ECS.Core.Components
     public sealed class SparseSet<T> where T : struct
     {
         private const int InvalidIndex = -1;
-        private int[] denseEntities;
+        private Entity[] denseEntities;
         private T[] denseComponents;
         private int[] sparse;
 
@@ -15,29 +15,29 @@ namespace ECS.Core.Components
 
         public SparseSet(int initialDenseCap = 64, int initialSparseCap = 64)
         {
-            denseEntities = new int[initialDenseCap];
+            denseEntities = new Entity[initialDenseCap];
             denseComponents = new T[initialDenseCap];
             sparse = new int[initialSparseCap];
             Array.Fill(sparse, InvalidIndex);
         }
 
         public bool Has(Entity entity) {
-            int id = entity;
+            int id = entity.Index;
             if (id < 0 || id >= sparse.Length) return false;
 
             int denseIndex = sparse[id];
             if (denseIndex == InvalidIndex) return false;
 
-            return denseIndex < count && denseEntities[denseIndex] == id;
+            return denseIndex < count && denseEntities[denseIndex] == entity;
         }
 
         public void Add(Entity entity, T component)
         {
             if (Has(entity)) throw new InvalidOperationException($"Entity {entity} already contains {typeof(T).Name}");
-            int id = entity;
+            int id = entity.Index;
             EnsureSparseCapacity(id);
             EnsureDenseCapacity();
-            denseEntities[count] = id;
+            denseEntities[count] = entity;
             denseComponents[count] = component;
             sparse[id] = count;
             count++;
@@ -45,29 +45,33 @@ namespace ECS.Core.Components
 
         public void Set(Entity entity, T component)
         {
-            if (Has(entity)) Get(entity) = component;
+            if (Has(entity))
+            {
+                Get(entity) = component;
+                return;
+            }
             Add(entity, component);
         }
 
         public ref T Get(Entity entity)
         {
             if (!Has(entity)) throw new InvalidOperationException($"Entity {entity} does not exist");
-            int denseIndex = sparse[entity];
+            int denseIndex = sparse[entity.Index];
             return ref denseComponents[denseIndex];
         }
 
         public bool Remove(Entity entity)
         {
             if (!Has(entity)) return false;
-            int id = entity;
+            int id = entity.Index;
             int removedIndex = sparse[id];
             int lastIndex = count - 1;
             if (removedIndex != lastIndex)
             {
-                int moved = denseEntities[lastIndex];
+                Entity moved = denseEntities[lastIndex];
                 denseEntities[removedIndex] = moved;
                 denseComponents[removedIndex] = denseComponents[lastIndex];
-                sparse[moved] = removedIndex;
+                sparse[moved.Index] = removedIndex;
             }
 
             denseEntities[lastIndex] = default;
@@ -80,7 +84,7 @@ namespace ECS.Core.Components
         public Entity EntityAt(int denseIndex)
         {
             if ((uint)denseIndex >= (uint)count) throw new ArgumentOutOfRangeException(nameof(denseIndex));
-            return new Entity((uint)denseEntities[denseIndex]);
+            return denseEntities[denseIndex];
         }
 
         public ref T ComponentAt(int denseIndex)
@@ -93,7 +97,7 @@ namespace ECS.Core.Components
         {
             for (int i = 0; i < count; i++)
             {
-                int id = denseEntities[i];
+                int id = denseEntities[i].Index;
                 if (id >= 0 && id < sparse.Length) sparse[id] = InvalidIndex;
             }
 

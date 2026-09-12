@@ -4,12 +4,13 @@ namespace ECS.Core.Entities
 {
     public readonly struct Entity : IEquatable<Entity>
     {
-        public readonly uint ID;
-        public Entity(uint id) { this.ID = id; }
+        public readonly int Index;
+        public readonly int Version;
+        public Entity(int id, int version) { Index = id; Version = version; }
 
         public bool Equals(Entity other)
         {
-            return ID == other.ID;
+            return Index == other.Index && Version == other.Version;
         }
 
         public override bool Equals(object o)
@@ -19,12 +20,12 @@ namespace ECS.Core.Entities
 
         public override int GetHashCode()
         {
-            return (int)ID;
+            return HashCode.Combine(Index, Version);
         }
 
         public override string ToString()
         {
-            return ID.ToString();
+            return $"({Index}:{Version})";
         }
 
         public static bool operator ==(Entity left, Entity right)
@@ -36,7 +37,5 @@ namespace ECS.Core.Entities
         {
             return !left.Equals(right);
         }
-
-        public static implicit operator int(Entity entity) => (int)entity.ID;
     }
 }

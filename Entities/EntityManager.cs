@@ -4,25 +4,43 @@ namespace ECS.Core.Entities
 {
     public sealed class EntityManager
     {
-        private uint nextId = 1;
-        private readonly HashSet<Entity> alive = new();
+        private int nextId = 1;
+        private readonly Stack<int> freeIndices = new();
+        private readonly List<int> versions = new();
+        private readonly List<bool> alive = new();
         public Entity Create()
         {
-            var entity = new Entity(nextId++);
-            alive.Add(entity);
+            int index;
+            if (freeIndices.Count > 0)
+            {
+                index = freeIndices.Pop();
+            }
+            else
+            {
+                index = nextId++;
+                versions.Add(1);
+                alive.Add(false);
+            }
+
+            alive[index] = true;
+            var entity = new Entity(index, versions[index]);
 
             return entity;
         }
 
         public bool Exists(Entity entity) {
-            return alive.Contains(entity);
+            return alive[entity.Index];
         }
 
         public bool Destroy(Entity entity)
         {
-            return alive.Remove(entity);
-        }
+            if (!Exists(entity)) return false;
 
-        public IReadOnlyCollection<Entity> Alive => alive;
+            alive[entity.Index] = false;
+            versions[entity.Index]++;
+            freeIndices.Push(entity.Index);
+
+            return true;
+        }
     }
 }
